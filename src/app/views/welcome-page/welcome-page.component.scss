@@ -1,0 +1,45 @@
+.container-whole {
+    overflow-x: hidden;
+  
+    .board {
+      max-width: 520px;
+      height: auto;
+      padding-right: 10px;
+    }
+  
+    .welcome-title {
+      font-size: 60px;
+      font-weight: 700;
+      color: #000;
+  
+      @media (max-width: 1202px) {
+        font-size: 45px;
+      }
+  
+      @media (max-width: 768px) {
+        font-size: 32px;
+      }
+    }
+  
+    .easily {
+      font-size: 16px;
+      color: #000;
+    }
+  
+    .start {
+      width: 240px;
+      height: 43px;
+      background-color: #3372FF;
+      border-radius: 8px;
+  
+      a {
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        text-decoration: none;
+      }
+    }
+  }
+  

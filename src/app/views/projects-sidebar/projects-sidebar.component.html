@@ -1,0 +1,156 @@
+<div class="tasks-count " routerLink="/dashboard">
+  <p> <img src="../../../assets/icons/tasks-white.png" width="23" height="23">
+    Tasks</p>
+  <p>{{totalTasksCount}}</p>
+</div>
+  <br>
+
+  <mat-accordion>
+    <mat-expansion-panel #panel [expanded]="true" class="projects">
+      <mat-expansion-panel-header >
+        <div class="d-flex justify-content-between w-100 align-items-center">
+          <div class="d-flex align-items-center">
+            <span class="project-text fw-bold ">Projects</span>
+          </div>
+
+          <div class="icons d-flex align-items-center gap-2">
+            <fa-icon [icon]="faPlus" 
+              class="cursor-pointer plus"  
+              (click)="openModal(addProjectModal); $event.stopPropagation()" >
+            </fa-icon>
+            
+            <mat-icon >
+              {{ panel.expanded ? 'expand_less' : 'expand_more' }}
+            </mat-icon>
+          </div>
+        </div>
+      </mat-expansion-panel-header>
+
+    <div class="mt-1" *ngIf="projects">
+      <ul class="btn-toggle-nav list-unstyled fw-normal small mb-2" *ngFor="let project of projects">
+
+        <li>
+          <div class="hover-effect d-flex align-items-center justify-content-between">
+          <a [routerLink]="['/projects', project.projectID]" class="text-decoration-none d-flex justify-content-between align-items-center">
+            <span class="d-flex align-items-center">
+              <span class="bullet me-2" [ngStyle]="{ 'background-color': project.projectColor }"></span>
+              {{project.projectName}}
+            </span>
+          </a>
+          <span class="count-wrapper">
+            <span class="normal-count">{{getTaskCountForProject(project.projectID)}}</span>
+            <button class="hover-count" [matMenuTriggerFor]="menu" tabindex="0"><img src="../../../assets/icons/Settings-horizontal-min.png" width="15">
+              </button>
+          </span>
+        </div>
+        </li>
+        
+        <mat-menu #menu="matMenu" class="hover-actions">
+          <button mat-menu-item>Edit</button>
+          <button mat-menu-item>Delete</button>
+        </mat-menu>
+
+
+ <!-- <li *ngFor="let project of projects" [value]="projects">
+          <a routerLink="/projects" class="text-decoration-none d-flex justify-content-between align-items-center">
+            <span class="d-flex align-items-center">
+              <span class="bullet me-2" ></span>
+              {{project}}
+            </span>
+            <span class="count">5</span>
+          </a>
+        </li> -->
+
+        <!-- <li>
+          <a routerLink="/projects" class="text-decoration-none d-flex justify-content-between align-items-center">
+            <span class="d-flex align-items-center">
+              <span class="bullet me-2"></span>
+              eCommerce
+            </span>
+            <span class="count">2</span>
+          </a>
+        </li>
+       -->
+        
+      </ul>
+    </div>
+
+
+</mat-expansion-panel>
+    
+</mat-accordion>
+
+<!-- MODAL FOR ADDING PROJECT -->
+<ng-template #addProjectModal let-c="close" let-d="dismiss">
+  <div class="modal modal-sheet d-block " tabindex="-1" role="dialog" id="modalSignin">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content rounded-4 shadow">
+        <div class="modal-header p-5 pb-4 border-bottom-0">
+          <h1 class="fw-bold mb-0 fs-2">Add Project</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="d('Cross click')"></button>
+        </div>
+  
+        <div class="modal-body p-5 pt-0">
+          <form class="" >    
+            <div class="row ">
+              <label class="form-label " for="addProjectName"> Project Name</label>
+              
+              <mat-form-field class="bg-color bg-color-option" appearance="fill" floatLabel="never">
+                <input matInput placeholder="Enter project name" id="addProjectName" name="addProjectName" type="text">
+                <!-- [(ngModel)]="projectName" -->
+              </mat-form-field>
+            </div>
+
+            <div class="row">
+              <div class="col">
+                <p class="label m-0" >Color</p>
+
+                <mat-form-field appearance="fill" class="form-label w-100 bg-color bg-color-option" floatLabel="never" >
+                  <mat-select id="plusTaskPriority"  name="priorityLevel"  >
+
+                    <mat-select-trigger>
+                      <span class="bullet" [ngClass]="colorClass"></span> {{ projectColor }}
+                    </mat-select-trigger>
+
+                    <mat-option value="Charcoal">
+                      <span class="bullet-drop bullet-charcoal"></span>
+                      Charcoal
+                    </mat-option>
+
+                    <mat-option value="Yellow">
+                      <span class="bullet-drop bullet-yellow"></span>
+                      Yellow
+                    </mat-option>
+
+                    <mat-option value="Green">
+                      <span class="bullet-drop bullet-green"></span>
+                      Green
+                    </mat-option>
+
+                    <mat-option value="Pink">
+                      <span class="bullet-drop bullet-pink"></span>
+                      Pink
+                    </mat-option>
+                    
+                  </mat-select>
+                </mat-form-field>
+              </div>
+
+            </div>
+
+            <div class="modal-buttons d-flex align-items-center justify-content-end">
+              <div class="cancel-btn mx-1">
+                <button (click)="c()" type="button" class="btn btn-outline-dark cancel-btn" >Cancel</button>
+              </div>
+
+              <div class="add-btn mx-1">
+                <button type="submit" class="btn btn-dark confirm-btn">Add</button>
+              </div>
+            </div>
+          </form>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>

@@ -1,0 +1,112 @@
+<div class="container-whole px-3 overflow-hidden min-vh-100 d-flex flex-column">
+  <header class="welcome-header d-flex justify-content-between align-items-center py-3">
+    <a routerLink="/">
+    <img src="../../../assets/images/sbcomp.png" alt="Logo" class="img-fluid w-8" style="max-width: 100px; height: auto;"></a>
+  </header>
+
+   
+      <div class="row flex-grow-1 d-flex justify-content-center align-items-center ">
+        <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+          
+            <div class="card-body p-5 ">
+              <h3 class="mb-3 create text-center">Create an Account</h3>
+              <h5 class="mb-4 text-center">Fill in your details to get started</h5>
+
+            <div class="form-wrapper">
+              <form (ngSubmit)="signup()" #signupForm="ngForm">
+                
+                
+              <div data-mdb-input-init class="mb-3">
+                <label for="floatingInput" class="form-label"> Email</label>
+                <input type="email" 
+                class="form-control custom-input-padding" 
+                id="floatingInput" 
+                name="email"
+                placeholder="Email address / Username" 
+                [(ngModel)]="signupData.email" required  
+                [ngClass]="{'input-error': signupErrors.email}">
+
+                <div *ngIf="signupErrors.email" class="error-space">
+                  <small class="error">{{signupErrors.email}}</small>
+                </div>
+              </div>
+              
+              <div data-mdb-input-init class="mb-3">
+                
+                <label for="floatingUsername" class="form-label">Username</label>
+                <input type="username" 
+                class="form-control custom-input-padding" 
+                id="floatingUsername" 
+                placeholder="Username" name="username"
+                [(ngModel)]="signupData.username"
+                [ngClass]="{'input-error': signupErrors.username}" required>
+
+                <div *ngIf="signupErrors.username" class="error-space">
+                  <small class="error">{{signupErrors.username}}</small>
+                </div>
+              </div>
+
+              <div data-mdb-input-init class="mb-3 position-relative">
+                <label for="floatingPassword" class="form-label">Password</label>
+                <input class="form-control custom-input-padding" 
+                id="floatingPassword" 
+                placeholder="Password" name="password"
+                [type]="showPassword ? 'text': 'password'" 
+                [(ngModel)]="signupData.password"
+                [ngClass]="{'input-error': signupErrors.password}">
+
+                <img src="{{ showPassword ? '../../../../../assets/icons/eye-filled.png' : '../../../../../assets/icons/eye-filled-slash.png' }}" 
+                alt="Toggle password visibility" 
+                class="position-absolute end-0 "
+                style="top: 40px; width: 20px; height: 20px; cursor: pointer; margin-right: 12px;" 
+                (click)="togglePasswordVisibility()"/>
+
+                <div *ngIf="signupErrors.password" class="error-space">
+                  <small class="error">{{signupErrors.password}}</small>
+                </div>
+                <!-- <label for="floatingPassword" class="form-label min-label">Minimum 8 characters</label> -->
+              </div>
+
+              <div data-mdb-input-init class="mb-3 position-relative">
+                <label for="floatingConfirmPassword" class="form-label">Confirm Password</label>
+                <input class="form-control custom-input-padding" id="floatingConfirmPassword" 
+                placeholder="Confirm Password" 
+                name="confirmPassword"
+                [type]="showConfirmPassword ? 'text': 'password'" 
+                [(ngModel)]="signupData.confirmPassword"
+                [ngClass]="{'input-error': signupErrors.confirmPassword}">
+
+                <img src="{{ showConfirmPassword ? '../../../../../assets/icons/eye-filled.png' : '../../../../../assets/icons/eye-filled-slash.png' }}" 
+                alt="Toggle password visibility" 
+                class="position-absolute end-0 "
+                style="top: 40px; width: 20px; height: 20px; cursor: pointer; margin-right: 12px;"
+                (click)="toggleConfirmPasswordVisibility()"/>
+
+                <div *ngIf="signupErrors.confirmPassword" class="error-space">
+                  <small class="error">{{signupErrors.confirmPassword}}</small>
+                </div>
+              </div>
+              
+              <div *ngIf="message" class="mb-2">
+                <div [ngClass]="{'text-danger': isError, 'text-success': !isError}">
+                {{ message }}
+              </div>
+            </div>
+
+            <div class="buttons d-flex flex-column mb-2">
+              <button data-mdb-button-init data-mdb-ripple-init 
+              class="btn submit btn-block mt-2" 
+              type="submit" >Submit</button>
+            </div>
+
+          </form>
+
+            <p class="text-center acct">Already have an account? <a routerLink="/login" class="login-link">Log In</a></p>
+            </div>
+          
+        </div>
+      </div>
+    </div></div>
+
+    <app-footer></app-footer>
+

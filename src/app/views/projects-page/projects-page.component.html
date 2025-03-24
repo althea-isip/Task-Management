@@ -1,0 +1,549 @@
+<app-header-user></app-header-user>
+
+  <div class="layout-container">
+    <div class="container-task d-flex flex-grow-1">
+    
+      <aside class="sidebar col-3">
+        <app-projects-sidebar></app-projects-sidebar>
+      </aside>
+
+    <main class="main-section col-9" >
+      
+      <div class="main-header" >
+        <h1 class="header-title-half">{{projectDetails?.projectName || 'Loading ...'}}</h1>
+      </div>
+
+      <hr>
+
+      <div class="d-flex justify-content-between w-100 align-items-center">
+        <div class="d-flex align-items-center">
+          <span class="fw-bold">Project Name</span>
+        </div>
+
+        <fa-icon mat-icon-button [matMenuTriggerFor]="menu" [icon]="faEllipsisV" class="cursor-pointer" 
+        (click)="$event.stopPropagation()">
+        </fa-icon>
+      </div>
+            
+      <mat-menu #menu="matMenu" class="d-flex justify-content-end">
+        <button class="dropdown-item" >Edit</button>
+        <button class="dropdown-item" >Delete</button>
+      </mat-menu>
+
+      <hr class="p-0 my-1">
+        
+        <table class="table table-sm" *ngIf="tasks">
+          <thead>
+            <tr>
+              <th scope="col"></th>
+              <th scope="col">Task Name</th>
+              <th scope="col">Due Date</th>
+              <th scope="col">Priority</th>
+              <th scope="col">Status</th>
+              <th scope="col"></th>
+            </tr>
+          </thead>
+          <tbody >
+            <tr *ngFor="let task of tasks" >
+              <th scope="row">
+                <mat-checkbox class="custom-checkbox" [checked]="task.status === 'Completed'"
+                (change)="toggleTaskStatus(task)"
+                ></mat-checkbox>
+                
+              </th>
+              <td [class.strikethrough]="task.status === 'Completed'">
+              <!-- (click)="openModalViewTask(task)"> -->{{task.taskName}}</td>
+              <td>{{task.dueDate |  date:'MM/dd/yyyy'}}</td>
+              <td>{{task.priorityLevel}}</td>
+              <td>
+                <button class="status-btn">
+                  <span class="bullet" [ngClass]="getStatusClass(task.status)"></span>
+                  {{task.status}}
+              </button>
+              </td>
+              <td>
+                <img src="../../../assets/icons/Edit-min.png" id="edit"matTooltip="Edit" width="24px" height="24px" class="edit-button"> <!-- (click)="openModalEdit(editTaskModal, taskDetails.taskID, task)"> -->
+                
+                <img src="../../../assets/icons/trash-grey.png" id="del" matTooltip="Delete" width="24px" height="24px" class="del-button"> <!-- (click)="openModalDelete(deleteTaskConfirmation, task.taskID)"> -->
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      
+     <!--  OPEN TASK MODAL FROM THE BOTTOM OF TABLE -->
+              <div class="add-task-container">
+                <button class="add-task-btn d-flex align-items-center" (click)="openModalTask(addTaskModal)" >
+                  <fa-icon [icon]="faPlus" class="cursor-pointer add"></fa-icon>
+                  <h4 class="add-btn-tbl m-0 pr-2">Add task</h4>
+                </button>
+              </div>
+      
+              <p *ngIf="!tasks || tasks.length <=0" class="text-center" >No Task Found</p>
+      
+          </main>
+        </div>
+      </div>
+      
+      <app-footer></app-footer>
+
+
+
+      
+
+<!-- ADD TASK MODAL FROM THE BOTTOM OF TABLE -->
+<ng-template #addTaskModal let-c="close" let-d="dismiss">
+  <div class="modal modal-sheet d-block " tabindex="-1" role="dialog" id="modalAddTaskTbl">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content rounded-4 shadow">
+        <div class="modal-header p-5 pb-4 border-bottom-0">
+          <h1 class="fw-bold mb-0 fs-2">Add Task</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="d('Cross click')" ></button>
+        </div>
+  
+        <div class="modal-body p-5 pt-0">
+          <form class="" #form="ngForm" (ngSubmit)="addTask()">               
+            <!-- <div class="row">
+              <label for="viewProjectName">Project</label>
+              <mat-form-field appearance="fill" class="w-100 bg-color bg-color-option">
+                <input matInput placeholder="Enter task name" id="viewProjectName" name="viewProjectName" type="text"
+                [(ngModel)]="addNewTaskRequest.projectName" readonly>
+              </mat-form-field>
+          </div> -->
+
+          <div class="row ">
+            <label class="form-label " for="plusTaskName"> Task Name</label>
+            
+            <mat-form-field class="bg-color bg-color-option" appearance="fill" floatLabel="never">
+              <input matInput placeholder="Enter task name" id="plusTaskName" name="taskName" type="text"
+              [(ngModel)]="addNewTaskRequest.taskName">
+            </mat-form-field>
+          </div>
+
+          <div class="row">
+            <label for="plusTaskDescription">Task Description</label>
+
+            <mat-form-field class="bg-color bg-color-option " appearance="fill" floatLabel="never">
+              <textarea matInput placeholder="Enter task description" name="taskDescription" id="plusTaskDescription"
+              [(ngModel)]="addNewTaskRequest.taskDescription" type="text"
+              cdkTextareaAutosize
+              #autosize="cdkTextareaAutosize"
+              cdkAutosizeMinRows="3"
+              cdkAutosizeMaxRows="5"></textarea>
+            </mat-form-field>
+          </div>
+
+            <div class="row">
+             
+              <div class="col-6">
+                <p class="label m-0" >Priority Level</p>
+
+                <mat-form-field appearance="fill" class="form-label w-100 bg-color bg-color-option" floatLabel="never" >
+                  <mat-select id="plusTaskPriority" [(ngModel)]="addNewTaskRequest.priorityLevel" name="priorityLevel"  >
+                    <mat-option value="Low">
+                      Low
+                    </mat-option>
+
+                    <mat-option value="Medium">
+                      Medium
+                    </mat-option>
+
+                    <mat-option value="High">
+                      High
+                    </mat-option>
+
+                    <mat-option value="Critical">
+                      Critical
+                    </mat-option>
+                    
+                  </mat-select>
+                </mat-form-field>
+              </div>
+
+              <div class="col-6">
+                <p class="label m-0" >Status</p>
+
+                <mat-form-field appearance="fill" class="w-100 bg-color bg-color-option" floatLabel="never">
+                  <mat-select [(ngModel)]="addNewTaskRequest.status" name="status" id="plusTaskStatus" >
+                    <!-- <mat-select-trigger>
+                      <span class="bullet" [ngClass]="statusClass"></span> {{ addNewTaskRequest.status }}
+                    </mat-select-trigger> -->
+
+                    <mat-select-trigger>
+                      <span class="bullet" [ngClass]="getStatusClass(addNewTaskRequest.status)"></span> 
+                      {{ addNewTaskRequest.status }}
+                    </mat-select-trigger>
+
+                    <mat-option value="Todo">
+                      <span class="bullet bullet-todo"></span> Todo
+                    </mat-option>
+
+                    <mat-option value="In Progress">
+                      <span class="bullet bullet-inprogress"></span> In Progress
+                    </mat-option>
+
+                    <mat-option value="On Hold">
+                      <span class="bullet bullet-onhold"></span> On Hold
+                    </mat-option>
+
+                    <mat-option value="Cancelled">
+                      <span class="bullet bullet-cancelled"></span> Cancelled
+                    </mat-option>
+
+                    <mat-option value="Completed">
+                      <span class="bullet bullet-completed"></span> Completed
+                    </mat-option>
+                    
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-6">
+                <label class="form-label" for="plusStartDate">Start Date</label>
+
+                <mat-form-field appearance="fill" class="w-100 bg-color">
+                  <mat-label>Choose a date</mat-label>
+                  <input matInput [matDatepicker]="startPicker"  id="plusStartDate"
+                    [(ngModel)]="addNewTaskRequest.startDate"
+                     name="startDate" [ngClass]="{'input-error': dateErrors.startDate}">
+                    <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+                    <mat-datepicker #startPicker></mat-datepicker>
+                  </mat-form-field>
+
+                  <div *ngIf="dateErrors.startDate" class="error-space text-start">
+                    <small class="error">{{dateErrors.startDate}}</small>
+                  </div>
+              </div>
+            
+              <div class="col-6">
+                <label class="form-label" for="plusDueDate">Due Date</label>
+
+                <mat-form-field appearance="fill" class="w-100 bg-color">
+                  <mat-label>Choose a date</mat-label>
+                  <input matInput [matDatepicker]="duePicker"  id="plusDueDate"
+                    [(ngModel)]="addNewTaskRequest.dueDate"
+                     name="dueDate" [ngClass]="{'input-error': dateErrors.startDate}">
+                    <mat-datepicker-toggle matSuffix [for]="duePicker"></mat-datepicker-toggle>
+                    <mat-datepicker #duePicker></mat-datepicker>
+                  </mat-form-field>
+
+                  <div *ngIf="dateErrors.dueDate" class="error-space text-start">
+                    <small class="error">{{dateErrors.dueDate}}</small>
+                  </div>
+              </div>
+            </div>
+            
+            <div class="modal-buttons d-flex align-items-center justify-content-end">
+              <div class="cancel-btn mx-1">
+                <button (click)="c()" type="button" class="btn btn-outline-dark cancel-btn" >Cancel</button>
+              </div>
+
+              <div class="add-btn mx-1">
+                <button type="submit" class="btn btn-dark confirm-btn">Add</button>
+              </div>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+
+
+
+
+<!-- VIEW OF EACH TASKS -->
+<ng-template #viewTask let-c="close" let-d="dismiss">
+  <div class="modal modal-sheet d-block " tabindex="-1" role="dialog" id="modalViewTask" >
+    <div class="modal-dialog" role="document">
+      <div class="modal-content rounded-4 shadow" >
+        <div class="modal-header p-5 pb-4 border-bottom-0">
+          <h1 class="fw-bold mb-0 fs-2">View Task</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="d('Cross click')"></button>
+        </div>
+  
+        <div class="modal-body p-5 pt-0"  *ngIf="selectedTask">
+          <form class="" >                  
+            <div class="row">
+              <label for="viewProjectName">Project</label>
+              <mat-form-field appearance="fill" class="w-100 bg-color bg-color-option">
+                <input matInput placeholder="Enter task name" id="viewProjectName" name="viewProjectName" type="text"
+                [(ngModel)]="selectedTask.projectName" readonly>
+              </mat-form-field>
+          </div>
+
+            <div class="row">
+              <label for="viewTaskName">Task Name</label>
+              
+              <mat-form-field class="bg-color bg-color-option" appearance="fill" floatLabel="never">
+                <input matInput placeholder="" id="viewTaskName" name="viewTaskName" type="text"
+                [(ngModel)]="selectedTask.taskName" readonly>
+              </mat-form-field>
+            </div>
+
+            <div class="row">
+              <label for="viewTaskDescription">Task Description</label>
+              
+              <mat-form-field class="bg-color bg-color-option" appearance="fill" floatLabel="never">
+                <input matInput placeholder="" id="viewTaskDescription" name="viewTaskDescription" type="text"
+                [(ngModel)]="selectedTask.taskDescription" readonly>
+              </mat-form-field>
+            </div>
+
+            
+            <div class="row">
+              <div class="col-6">
+                <p class="label m-0" >Priority Level</p>
+                <mat-form-field appearance="fill" class="w-100 bg-color bg-color-option">
+                  <input matInput [(ngModel)]="selectedTask.priorityLevel" name="viewPriority" id="viewPriority" readonly>
+                </mat-form-field>
+              </div>
+
+              <div class="col-6">
+                <p class="label m-0" >Status</p>
+                <mat-form-field appearance="fill" class="w-100 bg-color bg-color-option">
+                  <input matInput [(ngModel)]="selectedTask.status" name="viewStatus" id="viewStatus" readonly>
+                </mat-form-field>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-6">
+                <p class="label m-0" >Start Date</p>
+                <mat-form-field appearance="fill" class="w-100 bg-color bg-color-option">
+                  <input matInput [value]="selectedTask.startDate | date:'MM/dd/yyyy'" name="viewStartDate" id="viewStartDate" readonly>
+                </mat-form-field>
+              </div>
+            
+              <div class="col-6">
+                <p class="label m-0" >Due Date</p>
+                <mat-form-field appearance="fill" class="w-100 bg-color bg-color-option">
+                  <input matInput [value]="selectedTask.dueDate | date:'MM/dd/yyyy'" name="viewDueDate" id="viewDueDate" readonly>
+                </mat-form-field>
+              </div>
+            </div>
+
+            <div class="modal-buttons d-flex align-items-center justify-content-end">
+              <div class="cancel-btn my-3">
+                <button (click)="c()"type="button" class="btn btn-outline-dark cancel-btn" >Close</button>
+              </div>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+        
+
+<!-- EDIT TASK MODAL -->
+<ng-template #editTaskModal let-c="close" let-d="dismiss">
+  <div class="modal modal-sheet d-block " tabindex="-1" role="dialog" id="modalEditTask">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content rounded-4 shadow">
+        <div class="modal-header p-5 pb-4 border-bottom-0">
+          <h1 class="fw-bold mb-0 fs-2">Edit Task</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="d('Cross click')"></button>
+        </div>
+  
+        <div class="modal-body p-5 pt-0" *ngIf="selectedTask" >
+          <form class="" #form="ngForm" (ngSubmit)="updateTask()"> 
+            
+            <div class="row">
+              
+              <p class="label m-0" >Project</p>
+              <mat-form-field appearance="fill" class="w-100 bg-color bg-color-option">
+                <mat-select [(ngModel)]="selectedTask.projectName" name="editProjectName" id="editProjectName" >
+                  <mat-option value="No Project Name" disabled>
+                    Select Project
+                  </mat-option>
+
+                  <mat-option value="1">
+                    ITP
+                  </mat-option>
+
+                  <mat-option value="2">
+                    eCommerce
+                  </mat-option>
+
+                  <mat-option value="3">
+                    Shindigger
+                  </mat-option>
+
+                  <mat-option value="4">
+                    iCashier
+                  </mat-option>
+
+                  <mat-option value="5">
+                    IBO
+                  </mat-option>
+
+                  <mat-option value="6">
+                    Mobile iReader
+                  </mat-option>
+                  
+                </mat-select>
+              </mat-form-field>
+          </div>
+
+            <div class="row">
+              <div class="col-6">
+                <p class="label m-0" >Priority Level</p>
+                <mat-form-field appearance="fill" class="w-100 bg-color bg-color-option">
+                  <mat-select [(ngModel)]="selectedTask.priorityLevel" name="editPriority" id="editPriority" >
+                    <mat-option value="Low">
+                      Low
+                    </mat-option>
+
+                    <mat-option value="Medium">
+                      Medium
+                    </mat-option>
+
+                    <mat-option value="High">
+                      High
+                    </mat-option>
+
+                    <mat-option value="Critical">
+                      Critical
+                    </mat-option>
+                    
+                  </mat-select>
+                </mat-form-field>
+              </div>
+
+              <div class="col-6">
+                <p class="label m-0" >Status</p>
+
+                <mat-form-field appearance="fill" class="w-100 bg-color bg-color-option">
+                  <mat-select [(ngModel)]="selectedTask.status" name="editStatus" id="editStatus" >
+                    <mat-select-trigger>
+                      <span class="bullet" [ngClass]="getStatusClass(selectedTask.status)"></span> 
+                      {{ selectedTask.status }}
+                    </mat-select-trigger>
+
+
+                    <mat-option value="Todo">
+                      <span class="bullet bullet-todo"></span> Todo
+                    </mat-option>
+
+                    <mat-option value="In Progress">
+                      <span class="bullet bullet-inprogress"></span> In Progress
+                    </mat-option>
+
+                    <mat-option value="On Hold">
+                      <span class="bullet bullet-onhold"></span> On Hold
+                    </mat-option>
+
+                    <mat-option value="Cancelled">
+                      <span class="bullet bullet-cancelled"></span> Cancelled
+                    </mat-option>
+
+                    <mat-option value="Completed">
+                      <span class="bullet bullet-completed"></span> Completed
+                    </mat-option>
+                    
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-6">
+                <label class="form-label" for="editStartDate">Start Date</label>
+
+                <mat-form-field appearance="fill" class="w-100 bg-color">
+                  <mat-label>Choose a date</mat-label>
+                  <input matInput [matDatepicker]="startPickerUpdate" name="startDate" 
+                  [(ngModel)]="selectedTask.startDate"  id="editStartDate">
+                  <mat-datepicker-toggle matSuffix [for]="startPickerUpdate">
+                    
+                  </mat-datepicker-toggle>
+                  <mat-datepicker #startPickerUpdate></mat-datepicker>
+                </mat-form-field>
+              </div>
+            
+              <div class="col-6">
+                <label class="form-label" for="editDueDate">Due Date</label>
+
+                <mat-form-field appearance="fill" class="w-100 bg-color">
+                  <mat-label>Choose a date</mat-label>
+                  <input matInput [matDatepicker]="duePickerUpdate" [(ngModel)]="selectedTask.dueDate" id="editDueDate"
+                   name="dueDate">
+                  <mat-datepicker-toggle matSuffix [for]="duePickerUpdate"></mat-datepicker-toggle>
+                  <mat-datepicker #duePickerUpdate></mat-datepicker>
+                </mat-form-field>
+              </div>
+            </div>
+            
+            <div class="row ">
+              <label class="form-label " for="editTaskName"> Task Name</label>
+              
+              <mat-form-field class="bg-color bg-color-option" appearance="fill" floatLabel="never">
+                <input matInput placeholder="Enter task name" id="editTaskName" name="editTaskName" type="text"
+                [(ngModel)]="selectedTask.taskName">
+              </mat-form-field>
+            </div>
+
+            <div class="row">
+              <label for="editTaskDescription">Task Description</label>
+
+              <mat-form-field class="bg-color bg-color-option " appearance="fill" floatLabel="never">
+                <textarea matInput placeholder="Enter task description" name="editTaskDescription" id="editTaskDescription"
+                [(ngModel)]="selectedTask.taskDescription" type="text"
+                cdkTextareaAutosize
+                #autosize="cdkTextareaAutosize"
+                cdkAutosizeMinRows="3"
+                cdkAutosizeMaxRows="5"></textarea>
+              </mat-form-field>
+            </div>
+
+            <div class="modal-buttons d-flex align-items-center justify-content-end">
+              <div class="cancel-btn mx-1">
+                <button (click)="c()"type="button" class="btn btn-outline-dark cancel-btn" >Cancel</button>
+              </div>
+
+              <div class="add-btn mx-1">
+                <button type="submit" class="btn btn-dark confirm-btn">Save</button>
+              </div>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<!-- DELETE TASK MODAL -->
+<ng-template #deleteTaskConfirmation let-c="close" let-d="dismiss" >
+  <div class="modal modal-sheet d-block d-flex align-items-center " tabindex="-1"  role="dialog" id="modalAddTaskTbl">
+      <div class="modal-dialog custom-modal" role="document">
+        <div class="modal-content dtl-content rounded-4 shadow">
+          <div class="modal-header p-4 pb-1 d-flex align-items-center justify-content-center">
+            <h6 class="modal-title fw-bold mb-3 text-center">Confirmation</h6>
+          </div>
+
+          <div class="modal-body pt-4" >
+            <div class="d-flex flex-column align-items-center justify-content-between">
+            <img src="../../../assets/icons/Warning-min.png" class="pb-3" >
+             <h3 class="fw-normal mb-0">Are you sure you want to delete this Task?</h3>
+            </div>
+           </div>
+              
+          <div class="modal-footer px-3 py-2 d-flex align-items-center justify-content-center">
+            <button type="button" class="btn btn-light cancel-dlt-btn" data-dismiss="modal" (click)="c()" >Cancel</button>
+
+            <button type="button" class="btn btn-danger confirm-dlt-btn" (click)="deleteTask(taskToDelete!)">
+              <img src="../../../assets/icons/trash.png" width="16">
+              Confirm</button>
+          </div>
+
+          </div>
+        </div>
+      </div>
+</ng-template>

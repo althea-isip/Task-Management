@@ -1,0 +1,59 @@
+.form-wrapper {
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;           
+  padding: 0 1rem;          
+}
+
+.custom-input-padding{
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    background-color: #EBEFF3;
+    padding: 10px 15px;
+    border-radius: 5px;
+    &::placeholder{
+      font-size: 16px;
+    }
+}
+
+.min-label{
+    font-size: 11px;
+    color: rgb(78, 78, 78);
+}
+.create{
+  font-size: 32px;
+  font-weight: 600;
+}
+
+label{
+  font-weight: 500;
+  font-size: 14px;
+}
+
+
+.submit{
+  background-color: #3372FF;
+  padding: 6px 20px;
+  color: #fff;
+  border-radius: 10px;
+}
+
+.acct{
+  font-weight: 400;
+  font-size: 16px;
+  padding-top: 3px;
+  .login-link{
+    color: #3372FF;
+    font-weight: 700;
+    font-size: 16px;
+  }
+}
+
+   .input-error{
+    border: 1px solid rgb(212, 0, 0) !important;
+   }
+
+  .error-space {
+    min-height: 16px;
+    font-size: 13px;
+    color: rgb(212, 0, 0);
+  }
