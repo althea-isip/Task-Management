@@ -161,17 +161,72 @@
   border-radius: 3px;
   padding: 3px 5px 3px 5px;
   background-color: #ffffff;
-  color: #9c9d9e;
+  color: #636363;
   font-size: 14px;
   font-weight: 400;
-  //border: 0.2px solid #000;
   border: none;
   box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.336);
   &:hover{
     background-color: #fdfbfb;
-    color: #636464;
+    color: rgb(60, 61, 61);
   }
 }
+
+/* TABLE DESIGN */
+table{
+  width: 100%;
+
+  .mat-column-checkbox{
+    width: 50px;
+    padding: 0;
+    text-align: center;
+  }
+
+  .mat-column-taskName{
+    width: 50%;
+    
+    padding: 0; 
+  }
+
+  .mat-column-actions{
+    width: 80px;
+    padding: 0;
+    text-align: center;
+  }
+}
+
+
+
+
+
+/* CHECKBOX FOR FILTERING */
+::ng-deep .status-check.mat-checkbox {
+  font-size: 14px;
+  font-weight: 400;
+  
+  .mat-checkbox-frame {
+    border-radius: 2px;
+  }
+  .mat-checkbox-background {
+    background-color: #0DC44A !important; 
+    border-radius: 2px !important;
+  }
+
+  .mat-checkbox-checked .mat-checkbox-checkmark-path {
+    stroke: white !important;
+  }
+
+  &:not(.mat-checkbox-checked) .mat-checkbox-background {
+    background-color: transparent !important;
+    border-radius: 2px !important; 
+  }
+
+  .mat-ripple-element {
+    background-color: rgba(28, 204, 69, 0.473) !important;
+  }
+}
+
+
 
 /* REMOVE THE ACCORDIONS BUILT IN ICON AND SHADOW */
     ::ng-deep .mat-expansion-indicator {
@@ -393,3 +448,4 @@ mat-form-field{
     }
 
   }
+

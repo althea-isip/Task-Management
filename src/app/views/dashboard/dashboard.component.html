@@ -127,7 +127,8 @@
 
           <ng-container matColumnDef="checkbox">
             <th mat-header-cell *matHeaderCellDef> </th>
-            <td mat-cell *matCellDef="let task" >  <mat-checkbox class="custom-checkbox " [checked]="task.status === 'Completed'"
+            <td mat-cell *matCellDef="let task" >  
+              <mat-checkbox class="custom-checkbox " [checked]="task.status === 'Completed'"
               (change)="toggleTaskStatus(task)"
               ></mat-checkbox> </td>
           </ng-container>
@@ -167,20 +168,20 @@
           </td>
 
           <mat-menu #filter="matMenu" class="hover-actions p-3">
-            <button class="clear " (click)="clearFilters();$event.stopPropagation()">
+            <button class="clear " (click)="clearFilters()">
               <img src="../../../assets/icons/Filter-min.png" width="15"> Clear Filter 
             </button>
  
             <div class="status-filter d-flex row m-0 pt-2">
-            <mat-checkbox [(ngModel)]="selectedStatuses['Todo']" (change)="applyFilter()" (click)="$event.stopPropagation()">To Do</mat-checkbox>
+            <mat-checkbox  class="status-check" [(ngModel)]="selectedStatuses['Todo']" (change)="applyFilter()" (click)="$event.stopPropagation()">To Do</mat-checkbox>
 
-            <mat-checkbox [(ngModel)]="selectedStatuses['In Progress']" (change)="applyFilter()" (click)="$event.stopPropagation()">In Progress</mat-checkbox>
+            <mat-checkbox class="status-check" [(ngModel)]="selectedStatuses['In Progress']" (change)="applyFilter()" (click)="$event.stopPropagation()">In Progress</mat-checkbox>
 
-            <mat-checkbox [(ngModel)]="selectedStatuses['On Hold']" (change)="applyFilter()" (click)="$event.stopPropagation()">On Hold</mat-checkbox>
+            <mat-checkbox class="status-check" [(ngModel)]="selectedStatuses['On Hold']" (change)="applyFilter()" (click)="$event.stopPropagation()">On Hold</mat-checkbox>
 
-            <mat-checkbox [(ngModel)]="selectedStatuses['Cancelled']" (change)="applyFilter()" (click)="$event.stopPropagation()">Cancelled</mat-checkbox>
+            <mat-checkbox class="status-check" [(ngModel)]="selectedStatuses['Cancelled']" (change)="applyFilter()" (click)="$event.stopPropagation()">Cancelled</mat-checkbox>
 
-            <mat-checkbox [(ngModel)]="selectedStatuses['Completed']" (change)="applyFilter()" (click)="$event.stopPropagation()">Completed</mat-checkbox>
+            <mat-checkbox  class="status-check" [(ngModel)]="selectedStatuses['Completed']" (change)="applyFilter()" (click)="$event.stopPropagation()">Completed</mat-checkbox>
             </div>
           </mat-menu>
 
