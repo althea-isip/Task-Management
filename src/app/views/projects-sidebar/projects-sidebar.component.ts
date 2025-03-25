@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { faChevronDown, faEllipsisV, faPenSquare, faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal,NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { AddProject, Project } from 'src/app/models/project.model';
 import { ProjectsService } from 'src/app/services/projects.service';
 import { TasksService } from 'src/app/services/tasks.service';
@@ -17,24 +17,32 @@ export class ProjectsSidebarComponent implements OnInit {
   projects: Project[] = [];
   totalTasksCount = 0;
   tasks: Task[] = [];
-
+  projectToDelete: number | null = null;
+  modalRef: NgbModalRef | null = null;
   hoveredProject: Project | null = null;
 
   faPlus = faPlus;
-    faChevronDown = faChevronDown;
-    
+  faChevronDown = faChevronDown;
+
   addNewProjectRequest: AddProject = {
     userID: 0,
     projectName: '',
     projectColor: 'Charcoal',
+<<<<<<< Updated upstream
     }
   modalRef: any;
     
     
   constructor(private modalService: NgbModal, private projectsService: ProjectsService, private tasksService: TasksService, private snackBar:MatSnackBar) { }
+=======
+  }
+
+
+  constructor(private modalService: NgbModal, private projectsService: ProjectsService, private tasksService: TasksService, private snackBar: MatSnackBar) { }
+>>>>>>> Stashed changes
 
   ngOnInit(): void {
-   
+
     this.projectsService.getProject().subscribe({
       next: (projects) => {
         this.projects = projects;
@@ -46,15 +54,16 @@ export class ProjectsSidebarComponent implements OnInit {
 
     this.tasksService.tasks$.subscribe(tasks => {
       this.tasks = tasks;
-      this.totalTasksCount = tasks.length; 
+      this.totalTasksCount = tasks.length;
     });
     this.tasksService.getAllTasks();
   }
 
   get colorClass() {
     return 'bullet-' + this.projectColor.toLowerCase().replace(/\s+/g, '');
-  }   
+  }
 
+<<<<<<< Updated upstream
   getStatusClass(status: string): string {
     switch (status) {
       case 'Charcoal':
@@ -68,24 +77,47 @@ export class ProjectsSidebarComponent implements OnInit {
       default:
         return '';
     }
+=======
+  openModalDeleteProjectConfirmation(deleteTaskConfirmation:any, projectID: number) {
+    this.projectToDelete = projectID;
+    this.modalRef = this.modalService.open(deleteTaskConfirmation);
+>>>>>>> Stashed changes
   }
 
   editProject(project: string) {
     console.log('Edit clicked for', project);
   }
-  
-  deleteProject(project: string) {
-    console.log('Delete clicked for', project);
+
+  deleteProject(projectID: number) {
+    console.log('Delete clicked for', projectID);
+    this.projectsService.deleteProject(projectID).subscribe({
+      next:() => {
+        this.projects = this.projects.filter(project => project.projectID !== projectID);
+        this.snackBar.open('Project Successfully Deleted!', 'Close', {
+          duration: 3000,
+        });
+        if (this.modalRef) {
+          this.modalRef.close();
+          this.modalRef = null;
+        }
+      }
+    });
   }
 
 
+<<<<<<< Updated upstream
   openModal(addProjectModal:any) {
       this.modalRef = this.modalService.open(addProjectModal);
     }
+=======
+  openModal(addProjectModal: any) {
+    this.modalService.open(addProjectModal);
+  }
+>>>>>>> Stashed changes
 
-  getTaskCount(){
+  getTaskCount() {
     this.tasksService.getTotalTasks().subscribe({
-      next: (res)=>{
+      next: (res) => {
         this.tasksService.getAllTasks()/* .subscribe(tasks => {
           this.tasks = tasks;
         this.totalTasksCount = res.totalTasks
@@ -99,6 +131,7 @@ export class ProjectsSidebarComponent implements OnInit {
     return this.tasks.filter(task => task.projectID === projectID).length;
   }
 
+<<<<<<< Updated upstream
    
   
   addProject(){
@@ -123,4 +156,6 @@ export class ProjectsSidebarComponent implements OnInit {
     });
   }
 
+=======
+>>>>>>> Stashed changes
 }
