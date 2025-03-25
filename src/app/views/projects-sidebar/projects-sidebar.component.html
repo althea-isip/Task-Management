@@ -51,27 +51,6 @@
         </mat-menu>
 
 
- <!-- <li *ngFor="let project of projects" [value]="projects">
-          <a routerLink="/projects" class="text-decoration-none d-flex justify-content-between align-items-center">
-            <span class="d-flex align-items-center">
-              <span class="bullet me-2" ></span>
-              {{project}}
-            </span>
-            <span class="count">5</span>
-          </a>
-        </li> -->
-
-        <!-- <li>
-          <a routerLink="/projects" class="text-decoration-none d-flex justify-content-between align-items-center">
-            <span class="d-flex align-items-center">
-              <span class="bullet me-2"></span>
-              eCommerce
-            </span>
-            <span class="count">2</span>
-          </a>
-        </li>
-       -->
-        
       </ul>
     </div>
 
@@ -91,12 +70,12 @@
         </div>
   
         <div class="modal-body p-5 pt-0">
-          <form class="" >    
+          <form class="" (ngSubmit)="addProject()">    
             <div class="row ">
               <label class="form-label " for="addProjectName"> Project Name</label>
               
               <mat-form-field class="bg-color bg-color-option" appearance="fill" floatLabel="never">
-                <input matInput placeholder="Enter project name" id="addProjectName" name="addProjectName" type="text">
+                <input matInput placeholder="Enter project name" id="addProjectName" name="addProjectName" type="text" [(ngModel)]="addNewProjectRequest.projectName">
                 <!-- [(ngModel)]="projectName" -->
               </mat-form-field>
             </div>
@@ -106,10 +85,11 @@
                 <p class="label m-0" >Color</p>
 
                 <mat-form-field appearance="fill" class="form-label w-100 bg-color bg-color-option" floatLabel="never" >
-                  <mat-select id="plusTaskPriority"  name="priorityLevel"  >
+                  <mat-select id="addProjectColor"  name="addProjectColor"  [(ngModel)]="addNewProjectRequest.projectColor" >
 
                     <mat-select-trigger>
-                      <span class="bullet" [ngClass]="colorClass"></span> {{ projectColor }}
+                      <span class="bullet" [ngClass]="getStatusClass(addNewProjectRequest.projectColor)"></span> 
+                      {{ addNewProjectRequest.projectColor }}
                     </mat-select-trigger>
 
                     <mat-option value="Charcoal">

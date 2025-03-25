@@ -5,6 +5,7 @@ import { AddProject, Project } from 'src/app/models/project.model';
 import { ProjectsService } from 'src/app/services/projects.service';
 import { TasksService } from 'src/app/services/tasks.service';
 import { Task } from 'src/app/models/task.model';
+import { MatSnackBar } from '@angular/material/snack-bar';
 @Component({
   selector: 'app-projects-sidebar',
   templateUrl: './projects-sidebar.component.html',
@@ -27,9 +28,10 @@ export class ProjectsSidebarComponent implements OnInit {
     projectName: '',
     projectColor: 'Charcoal',
     }
+  modalRef: any;
     
     
-  constructor(private modalService: NgbModal, private projectsService: ProjectsService, private tasksService: TasksService) { }
+  constructor(private modalService: NgbModal, private projectsService: ProjectsService, private tasksService: TasksService, private snackBar:MatSnackBar) { }
 
   ngOnInit(): void {
    
@@ -53,7 +55,20 @@ export class ProjectsSidebarComponent implements OnInit {
     return 'bullet-' + this.projectColor.toLowerCase().replace(/\s+/g, '');
   }   
 
-  
+  getStatusClass(status: string): string {
+    switch (status) {
+      case 'Charcoal':
+        return 'bullet-charcoal';
+      case 'Yellow':
+        return 'bullet-yello';
+      case 'Green':
+        return 'bullet-green';
+      case 'Pink':
+        return 'bullet-pink';
+      default:
+        return '';
+    }
+  }
 
   editProject(project: string) {
     console.log('Edit clicked for', project);
@@ -65,7 +80,7 @@ export class ProjectsSidebarComponent implements OnInit {
 
 
   openModal(addProjectModal:any) {
-      this.modalService.open(addProjectModal);
+      this.modalRef = this.modalService.open(addProjectModal);
     }
 
   getTaskCount(){
@@ -85,5 +100,27 @@ export class ProjectsSidebarComponent implements OnInit {
   }
 
    
+  
+  addProject(){
+    this.projectsService.addNewProject(this.addNewProjectRequest).subscribe({
+      next: () => {
+        this.addNewProjectRequest.projectName = '';
+        this.addNewProjectRequest.projectColor = '';
+        this.projectsService.getProject();
+        /* this.tasksService.getAllTasks().subscribe(tasks => this.tasks = tasks); */
+        this.snackBar.open('New Task Added!', 'Close', {
+          duration: 3000,
+        })
+        if (this.modalRef) {
+          this.modalRef.close();
+          this.modalRef = null;
+        }
+        console.log('added', this.addNewProjectRequest);
+      },
+      error: (error) => {
+        console.log('Add Task Failed:');
+      }
+    });
+  }
 
 }

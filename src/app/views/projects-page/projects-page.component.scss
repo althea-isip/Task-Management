@@ -55,6 +55,13 @@
       color: gray;
     }
 
+    .ellipses{
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 150px; 
+    }
+
   .status-btn{
       background-color: transparent;
       padding: 1px 4px;
@@ -64,12 +71,46 @@
       border: 1px solid #00000056;
   }
   
-  table tbody tr:hover td,
+  /* table tbody tr:hover td,
   table tbody tr:hover th {
       background-color: #dadada;
       color: #000000;
       transition: all 0.2s ease;
+  } */
+  table th, td {
+      color: #000000;
+      font-size: 14px;
+      font-weight: 400;
+  } 
+  tr.mat-row{
+    height: 40px;
   }
+  tr.mat-header-row {
+    height: 40px;
+  }
+  
+  .header-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .filter-icon {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+  }
+
+  
+  
+  
+
+  table tr:hover td{
+      background-color: #dadada;
+      color: #000000;
+      transition: all 0.2s ease;
+  } 
+
     .edit-del{
       display: flex;
       justify-content: space-around;
@@ -90,7 +131,7 @@
     
 
   .add-task-container{
-      
+    padding: 15px 20px;
       .add-task-btn{
           border: none;
           background-color: transparent;
@@ -115,6 +156,82 @@
       }
   }
 }
+
+.clear{
+border-radius: 3px;
+padding: 3px 5px 3px 5px;
+background-color: #ffffff;
+color: #636363;
+font-size: 14px;
+font-weight: 400;
+border: none;
+box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.336);
+&:hover{
+  background-color: #fdfbfb;
+  color: rgb(60, 61, 61);
+}
+}
+
+/* TABLE DESIGN */
+table{
+width: 100%;
+
+.mat-column-checkbox{
+  width: 50px;
+  padding: 0;
+  text-align: center;
+}
+
+.mat-column-taskName{
+  width: 50%;
+  
+  padding: 0; 
+}
+
+.mat-column-actions{
+  width: 80px;
+  padding: 0;
+  text-align: center;
+}
+}
+
+::ng-deep .mat-menu-panel {
+min-width: 150px !important;
+max-width: 180px !important;
+}
+
+
+
+
+
+
+/* CHECKBOX FOR FILTERING */
+::ng-deep .status-check.mat-checkbox {
+font-size: 14px;
+font-weight: 400;
+
+.mat-checkbox-frame {
+  border-radius: 2px;
+}
+.mat-checkbox-background {
+  background-color: #0DC44A !important; 
+  border-radius: 2px !important;
+}
+
+.mat-checkbox-checked .mat-checkbox-checkmark-path {
+  stroke: white !important;
+}
+
+&:not(.mat-checkbox-checked) .mat-checkbox-background {
+  background-color: transparent !important;
+  border-radius: 2px !important; 
+}
+
+.mat-ripple-element {
+  background-color: rgba(28, 204, 69, 0.473) !important;
+}
+}
+
 
 
 /* REMOVE THE ACCORDIONS BUILT IN ICON AND SHADOW */
@@ -142,6 +259,7 @@
   min-height: unset !important;
     height: auto !important;
     line-height: normal;
+    
 }
 
 ::ng-deep mat-expansion-panel .mat-expansion-panel-content .mat-expansion-panel-body {
@@ -337,12 +455,3 @@ align-items: center;
 
 }
 
-
-/* INPUT  */
-.bg-color ::ng-deep input.mat-input-element:focus {
-  background-color: #EBEFF3 !important;
-  box-shadow: none !important;
-}
-.bg-color ::ng-deep input.mat-input-element {
-  background-color: #EBEFF3 !important; // Your custom field color
-}

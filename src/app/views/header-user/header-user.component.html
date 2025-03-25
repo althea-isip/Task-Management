@@ -8,11 +8,15 @@
         </div>
 
         <div class="dropdown text-end">
-            <button mat-button [matMenuTriggerFor]="menu" class="rounded-circle"><img src="../../../assets/icons/profile.png" alt="Profile" width="34" height="34" >
+            <button mat-button [matMenuTriggerFor]="menu" class="rounded-circle">
+                <div class="profile-image-container">
+                    <img src="../../../assets/icons/profile.png" alt="Profile" >
+                  </div>
             </button>
 
             <mat-menu #menu="matMenu">
-                <a class="dropdown-item" href="#">Account</a><a class="dropdown-item" routerLink="/login">Logout</a>
+                <button mat-menu-item><a class="dropdown-item" href="#">Account</a></button>
+                <button mat-menu-item><a class="dropdown-item" routerLink="/login">Logout</a></button>
             </mat-menu>
 
           </div>

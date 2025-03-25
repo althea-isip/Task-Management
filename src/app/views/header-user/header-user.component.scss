@@ -7,6 +7,26 @@
     font-size: 24px;
 }
 
-.rounded-circle{
-    border: none;
+ .dropdown, .rounded-circle {
+    width: 38px !important;
+    height: 38px !important;
+    padding: 0 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50% !important;
+    overflow: hidden;
+}
+
+.profile-image-container {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.profile-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }

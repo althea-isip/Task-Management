@@ -195,6 +195,12 @@ table{
   }
 }
 
+::ng-deep .mat-menu-panel {
+  min-width: 150px !important;
+  max-width: 180px !important;
+}
+
+
 
 
 

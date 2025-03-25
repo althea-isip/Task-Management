@@ -11,6 +11,7 @@ import { Project } from 'src/app/models/project.model';
 import { ProjectsService } from 'src/app/services/projects.service';
 import { MatSort } from '@angular/material/sort';
 import {MatTableDataSource} from '@angular/material/table';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard',
@@ -20,6 +21,15 @@ import {MatTableDataSource} from '@angular/material/table';
 export class DashboardComponent implements OnInit {
   projects: Project[] = [];
   
+  tasks: Task[] = [];
+  task!: Task;
+  selectedTask: Task | null = null;
+  taskToDelete: number | null = null;
+  taskToEdit: number | null = null;
+  modalRef: NgbModalRef | null = null;
+  minDate = new Date(2000, 0, 1); 
+  tasksByProject: { [projectID: number]: Task[] } = {};
+  displayedColumns: string[] = ['checkbox', 'taskName', 'dueDate', 'priorityLevel', 'status', 'actions'];
   searchText: string = '';
   selectedStatuses: { [status: string]: boolean } = {
     'Todo': false,
@@ -55,7 +65,6 @@ export class DashboardComponent implements OnInit {
     }); */
 
     this.tasksService.tasks$.subscribe(tasks => {
-      
       this.tasks = tasks;
       this.dataSource.data = tasks;
       this.dataSource.sort = this.sort;
@@ -66,20 +75,20 @@ export class DashboardComponent implements OnInit {
   }
 
   
-applyFilter() {
-  const filterObj = {
-    text: this.searchText || '',
-    statuses: this.selectedStatuses
-  };
-  this.dataSource.filter = JSON.stringify(filterObj);
-}
-
-clearFilters() {
-  for (let key in this.selectedStatuses) {
-    this.selectedStatuses[key] = false;
+  applyFilter() {
+    const filterObj = {
+      text: this.searchText || '',
+      statuses: this.selectedStatuses
+    };
+    this.dataSource.filter = JSON.stringify(filterObj);
   }
-  this.applyFilter();
-}
+
+  clearFilters() {
+    for (let key in this.selectedStatuses) {
+      this.selectedStatuses[key] = false;
+    }
+    this.applyFilter();
+  }
   
   @ViewChild('autosize')
   autosize!: CdkTextareaAutosize;
@@ -93,28 +102,36 @@ clearFilters() {
   @ViewChild('deleteTaskConfirmation') deleteTaskConfirmation!: TemplateRef<any>;
   @Input() status: string = '';
   
-  tasks: Task[] = [];
-  task!: Task;
-  selectedTask: Task | null = null;
-  taskToDelete: number | null = null;
-  taskToEdit: number | null = null;
-  modalRef: NgbModalRef | null = null;
-
-  displayedColumns: string[] = ['checkbox', 'taskName', 'dueDate', 'priorityLevel', 'status', 'actions'];
   dataSource = new MatTableDataSource<Task>([]);
   @ViewChild(MatSort)
   sort!: MatSort;
   
   loadProjects() {
-    this.projectsService.getProject().subscribe({
-      next: (projects) => {
-        this.projects = projects;
-      },
-      error: (err) => {
-        console.error('Error loading projects:', err);
-      }
-    });
-  }
+  this.projectsService.getProject().subscribe({
+    next: (projects) => {
+      this.projects = projects;
+
+      // Fetch tasks for each project
+      this.projects.forEach(project => {
+        this.tasksService.getTaskByProjectID(project.projectID).subscribe({
+          next: (tasks) => {
+            this.tasksByProject[project.projectID] = tasks;
+          },
+          error: (err) => {
+            console.error(`Error loading tasks for project ${project.projectID}`, err);
+          }
+        });
+      });
+    },
+    error: (err) => {
+      console.error('Error loading projects:', err);
+    }
+  });
+}
+  
+getTasksByProjectID(projectID: number): Observable<Task[]> {
+  return this.tasksService.getTaskByProjectID(projectID);
+}
   
   errors: { startDate: string; dueDate: string; projName: string }
   ={

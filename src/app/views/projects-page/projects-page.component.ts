@@ -9,6 +9,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { take } from 'rxjs/operators';
 import { Project } from 'src/app/models/project.model';
 import { ProjectsService } from 'src/app/services/projects.service';
+import { Observable } from 'rxjs';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatSort } from '@angular/material/sort';
 
 @Component({
   selector: 'app-projects-page',
@@ -16,10 +19,97 @@ import { ProjectsService } from 'src/app/services/projects.service';
   styleUrls: ['./projects-page.component.scss']
 })
 export class ProjectsPageComponent implements OnInit {
+projects: Project[] = [];
+  
+  tasks: Task[] = [];
+  task!: Task;
+  selectedTask: Task | null = null;
+  taskToDelete: number | null = null;
+  taskToEdit: number | null = null;
+  modalRef: NgbModalRef | null = null;
 
-  projects: Project[] = [];
-  projectID!: number;
-  projectId!: number;
+  minDate = new Date(2000, 0, 1); 
+  displayedColumns: string[] = ['checkbox', 'taskName', 'dueDate', 'priorityLevel', 'status', 'actions'];
+  searchText: string = '';
+  selectedStatuses: { [status: string]: boolean } = {
+    'Todo': false,
+    'In Progress': false,
+    'On Hold': false,
+    'Cancelled': false,
+    'Completed': false,
+  };
+  projectDetails?: Project; 
+
+  constructor(private modalService: NgbModal, private tasksService: TasksService, private route: ActivatedRoute, private snackBar:MatSnackBar, private _ngZone: NgZone, private projectsService: ProjectsService) { }
+
+  filterPredicate = (data: Task, filter: string): boolean => {
+    const search = JSON.parse(filter);
+    const statusMatch = Object.entries(search.statuses)
+      .filter(([_, checked]) => checked)
+      .map(([status]) => status)
+      .includes(data.status);
+  
+    const textMatch = data.taskName?.toLowerCase().includes(search.text.toLowerCase());
+  
+    return (statusMatch || Object.values(search.statuses).every(v => !v)) && textMatch;
+  };
+
+  ngOnInit(): void {
+    this.loadProjects();
+
+    this.route.paramMap.subscribe(params => {
+      const projectID = Number(params.get('id'));
+      if (projectID) {
+        this.getProjectDetails(projectID);
+      }
+    });
+
+
+    this.tasksService.tasks$.subscribe(tasks => {
+      this.tasks = tasks;
+      this.dataSource.data = tasks;
+      this.dataSource.sort = this.sort;
+    });
+
+    this.tasksService.getAllTasks();
+
+    this.dataSource.filterPredicate = this.filterPredicate;
+  }
+
+
+  getProjectDetails(projectID: number): void {
+    this.projectsService.getProject().subscribe({
+      next: (projects) => {
+        this.projects = projects;
+      const matchedProject = projects.find(p => p.projectID === projectID);
+      if (matchedProject) {
+        this.projectDetails = matchedProject;
+      } else {
+        console.warn('Project not found with projectID:', projectID);
+      }
+      },
+      error: (err) => {
+        console.error('Failed to get project details:', err);
+      }
+    });
+  }
+
+  
+applyFilter() {
+  const filterObj = {
+    text: this.searchText || '',
+    statuses: this.selectedStatuses
+  };
+  this.dataSource.filter = JSON.stringify(filterObj);
+}
+
+clearFilters() {
+  for (let key in this.selectedStatuses) {
+    this.selectedStatuses[key] = false;
+  }
+  this.applyFilter();
+}
+  
   @ViewChild('autosize')
   autosize!: CdkTextareaAutosize;
   triggerResize() {
@@ -32,23 +122,35 @@ export class ProjectsPageComponent implements OnInit {
   @ViewChild('deleteTaskConfirmation') deleteTaskConfirmation!: TemplateRef<any>;
   @Input() status: string = '';
   
-  tasks: Task[] = [];
-  task!: Task;
-  selectedTask: Task | null = null;
-  taskToDelete: number | null = null;
-  taskToEdit: number | null = null;
-  modalRef: NgbModalRef | null = null;
+  dataSource = new MatTableDataSource<Task>([]);
+  @ViewChild(MatSort)
+  sort!: MatSort;
   
+  loadProjects() {
+    this.projectsService.getProject().subscribe({
+      next: (projects) => {
+        this.projects = projects;
+      },
+      error: (err) => {
+        console.error('Error loading projects:', err);
+      }
+    });
+  }
   
-  dateErrors: { startDate: string; dueDate: string; }
+getTasksByProjectID(projectID: number): Observable<Task[]> {
+  return this.tasksService.getTaskByProjectID(projectID);
+}
+  
+  errors: { startDate: string; dueDate: string; projName: string }
   ={
     startDate: '',
-    dueDate: ''
+    dueDate: '',
+    projName: ''
   }
 
   addNewTaskRequest: AddTask = {
     projectID: 1,
-    projectName: 'No Project Name',
+    projectName: '',
     taskName: '',
     taskDescription: '',
     startDate: '',
@@ -69,64 +171,18 @@ export class ProjectsPageComponent implements OnInit {
     priorityLevel: ''
   }
 
-  projectDetails?: Project; 
+  faPlus = faPlus;
+  faChevronDown = faChevronDown;
+  faEllipsisV = faEllipsisV;
+  faPenSquare = faPenSquare;
+  faTrash = faTrash;
 
-    constructor(private modalService: NgbModal, private tasksService: TasksService, private route: ActivatedRoute, private snackBar:MatSnackBar, private _ngZone: NgZone, private projectsService: ProjectsService) { 
-      
-    }
-
-  ngOnInit(): void {
-    /* this.tasksService.getAllTasks().subscribe({
-      next: (tasks) => {
-        this.tasks = tasks;
-      },
-      error: (err) => {
-        console.log(err);
-      }
-    }); */
-    /* this.tasksService.tasks$.subscribe(tasks => {
-      this.tasks = tasks;
-    }); */
-
-    this.route.paramMap.subscribe(params => {
-      const projectID = Number(params.get('id'));
-      if (projectID) {
-        this.getProjectDetails(projectID);
-      }
-    });
-  }
-
-  getProjectDetails(projectID: number): void {
-    this.projectsService.getProject().subscribe({
-      next: (projects) => {
-        this.projects = projects;
-      const matchedProject = projects.find(p => p.projectID === projectID);
-      if (matchedProject) {
-        this.projectDetails = matchedProject;
-      } else {
-        console.warn('Project not found with projectID:', projectID);
-      }
-      },
-      error: (err) => {
-        console.error('Failed to get project details:', err);
-      }
-    });
-  }
+  startDate:Date = new Date();
+  dueDate:Date = new Date();
 
   openModal(contentModal:TemplateRef<any>) {
     this.loadProjects();
     this.modalRef = this.modalService.open(contentModal);
-  }
-
-  loadProjects() {
-    this.projectsService.getProject().subscribe({
-      next: (projects) => {
-        this.projects = projects;
-      },
-      error: (err) => {
-        console.error('Error loading projects:', err);
-      }
-    });
   }
 
   openModalEdit(editTaskModal:any, taskID: number, task:Task){
@@ -149,6 +205,48 @@ export class ProjectsPageComponent implements OnInit {
     this.modalRef = this.modalService.open(deleteTaskConfirmation);
   }
 
+  adjustDateToLocal(date: Date | string): string {
+    const d = new Date(date);
+    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+    return d.toISOString().split('T')[0];
+  }
+
+
+
+  toggleTaskStatus(task: any): void {
+    const previousStatus = task.status; // Save before changing
+
+  if (task.status !== 'Completed') {
+    task.originalStatus = task.status; // Save before changing
+    task.status = 'Completed';
+  } else {
+    task.status = task.originalStatus || 'Todo';
+  }
+
+  const updatedTask: EditTask = {
+    taskID: task.taskID,
+    projectID: task.projectID,
+    projectName: task.projectName || '',
+    taskName: task.taskName,
+    taskDescription: task.taskDescription,
+    startDate: task.startDate,
+    dueDate: task.dueDate,
+    status: task.status,
+    priorityLevel: task.priorityLevel
+  };
+
+  this.tasksService.updateTask(task.taskID, updatedTask).subscribe({
+    next: () => {
+      console.log('Task status updated successfully');
+    },
+    error: (error) => {
+      console.error('Error updating task status:', error);
+      // Revert status in case of API failure
+      task.status = previousStatus;
+    }
+  });
+  }
+
   getStatusClass(status: string): string {
     switch (status) {
       case 'Todo':
@@ -165,44 +263,35 @@ export class ProjectsPageComponent implements OnInit {
         return '';
     }
   }
-   
-    faPlus = faPlus;
-    faChevronDown = faChevronDown;
-    faEllipsisV = faEllipsisV;
-    faPenSquare = faPenSquare;
-    faTrash = faTrash;
-
-  adjustDateToLocal(date: Date | string): string {
-    const d = new Date(date);
-    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
-    return d.toISOString().split('T')[0];
-  }
-
-  toggleTaskStatus(task: any): void {
-    if (task.status !== 'Completed') {
-      task.originalStatus = task.status; 
-      task.status = 'Completed';
-    } else {
-      task.status = task.originalStatus || 'Todo'; 
-    }
-  }
 
   addTask(){
-    this.dateErrors = {
+    this.errors = {
+      projName: '',
       startDate: '',
-      dueDate: ''
+      dueDate: '',
     }
 
     let hasError = false;
 
+   /*  if (!this.addNewTaskRequest.projectID) {
+      this.errors.projName = 'Select a Project';
+      this.clearError('projName');
+      hasError= true;
+    }  */
+
+    /* if (!this.addNewTaskRequest.projectID || this.addNewTaskRequest.projectID === 0) {
+      this.errors.projName = 'Select a Project';
+      hasError = true;
+    } */
+
     if (!this.addNewTaskRequest.startDate) {
-      this.dateErrors.startDate = 'Start Date is required';
+      this.errors.startDate = 'Start Date is required';
       this.clearError('startDate');
       hasError= true;
     } 
 
     if (!this.addNewTaskRequest.dueDate) {
-      this.dateErrors.dueDate = 'Due Date is required';
+      this.errors.dueDate = 'Due Date is required';
       this.clearError('dueDate');
       hasError= true;
     } 
@@ -218,9 +307,15 @@ export class ProjectsPageComponent implements OnInit {
 
     this.tasksService.addNewTask(adjustedTask).subscribe({
       next: () => {
-        this.addNewTaskRequest.projectName = 'Select Project';
-        
-        this.tasksService.getAllTasks()/* .subscribe(tasks => this.tasks = tasks); */
+        this.addNewTaskRequest.projectName = '';
+        this.addNewTaskRequest.taskName = '';
+        this.addNewTaskRequest.priorityLevel = 'Low';
+        this.addNewTaskRequest.status = 'Todo';
+        this.addNewTaskRequest.taskDescription = '';
+        this.addNewTaskRequest.startDate = '';
+        this.addNewTaskRequest.dueDate = '';
+        this.tasksService.getAllTasks();
+        /* this.tasksService.getAllTasks().subscribe(tasks => this.tasks = tasks); */
         this.snackBar.open('New Task Added!', 'Close', {
           duration: 3000,
         })
@@ -231,9 +326,14 @@ export class ProjectsPageComponent implements OnInit {
         console.log('added', this.addNewTaskRequest);
       },
       error: (error) => {
-        console.log('Add Task Failed:', error.error.errors);
+        console.log('Add Task Failed:', adjustedTask);
       }
     });
+  }
+
+  getProjectName(projectID: number): string {
+    const project = this.projects.find(p => p.projectID === projectID);
+    return project ? project.projectName : '';
   }
 
   get statusClass() {
@@ -241,15 +341,14 @@ export class ProjectsPageComponent implements OnInit {
   }   
 
 
-  clearError(field: keyof typeof this.dateErrors, delay = 3000){
+  clearError(field: keyof typeof this.errors, delay = 3000){
     setTimeout(() => {
-      this.dateErrors[field] = '';
+      this.errors[field] = '';
     }, delay);
   }
 
   updateTask() {
     if (!this.selectedTask) return;
-
     const updatedTask = {
     ...this.selectedTask,
     startDate: this.adjustDateToLocal(this.selectedTask.startDate),
@@ -259,8 +358,8 @@ export class ProjectsPageComponent implements OnInit {
   this.tasksService.updateTask(updatedTask.taskID, updatedTask).subscribe({
       next: () => {
         console.log('Task Updated:', this.selectedTask);
-        
-        this.tasksService.getAllTasks()/* .subscribe(tasks => this.tasks = tasks); */
+        this.tasksService.getAllTasks();
+        /* this.tasksService.getAllTasks().subscribe(tasks => this.tasks = tasks); */
         this.snackBar.open('Task Updated!', 'Close', {
           duration: 3000,
         })
@@ -277,24 +376,27 @@ export class ProjectsPageComponent implements OnInit {
   }
 
   deleteTask(taskID:number){
+    console.log(`task with ${taskID} deleted`)
       this.tasksService.deleteTask(taskID).subscribe({
         next:() =>{
-          console.log(`task with ${taskID} deleted`)
+          
+          /* this.tasksService.getAllTasks(); */
           this.tasks = this.tasks.filter(task => task.taskID !==taskID);
           this.snackBar.open('Task Successfully Deleted!', 'Close', {
             duration: 3000,
           })
-          if (this.modalRef) {
+          /* this.tasksService.refreshTasks(); */
+          if (this.modalRef ) {
             this.modalRef.close();
             this.modalRef = null;
           }
           
         },
         error: (error)=>{
-          console.error('delete Task Failed:', error.error.errors)
+          console.error('delete Task Failed:', error?.error?.errors || error?.message || error)
         }
       })
-    
   }
+  
 
 }
